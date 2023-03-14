@@ -36,7 +36,7 @@ func (u *urlHandler) CreateUrl(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"Message": "usuario criado com sucesso!",
+		"Message": "url criada com sucesso!",
 		"user_id": url_hash,
 	})
 }
@@ -48,7 +48,7 @@ func (u *urlHandler) GetUrl(ctx *gin.Context) {
 
 	if err == sql.ErrNoRows {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"Message": "URL na encotrada",
+			"Message": "URL nao encontrada",
 			"Error":   err,
 		})
 		return
@@ -81,5 +81,5 @@ func (u *urlHandler) RedirectToUrl(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.Redirect(http.StatusMovedPermanently, url.Url_original)
+	ctx.Redirect(http.StatusMovedPermanently, url)
 }

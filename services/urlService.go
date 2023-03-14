@@ -34,16 +34,16 @@ func (u *urlService) Insert(url models.UrlDTO) (url_hash string, err error) {
 	return
 }
 
-func (u *urlService) Get(url_hash string) (url models.UrlDTO, err error) {
+func (u *urlService) Get(url_hash string) (url_original string, err error) {
 	conn, err := db.OppenConnection()
 	if err != nil {
 		return
 	}
 	defer conn.Close()
 
-	row := conn.QueryRow(fmt.Sprintf("SELECT url_hash,url_original,useer_id FROM urls WHERE url_hash = %s", url_hash))
+	row := conn.QueryRow(fmt.Sprintf("SELECT url_original FROM urls WHERE url_hash = '%s'", url_hash))
 
-	err = row.Scan(&url.Url_hash, &url.Url_original, &url.User_id)
+	err = row.Scan(&url_original)
 
 	return
 }
