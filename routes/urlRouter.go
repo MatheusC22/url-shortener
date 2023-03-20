@@ -14,6 +14,7 @@ func UrlRoutes(router *gin.Engine) *gin.RouterGroup {
 		urlRouter.POST("/", urlHandler.CreateUrl)
 		urlRouter.GET("/:url_hash", urlHandler.GetUrl)
 		urlRouter.GET("/redirect/:url_hash", urlHandler.RedirectToUrl)
+		urlRouter.DELETE(("/:url_hash"), urlHandler.DeleteUrl)
 	}
 	return urlRouter
 }

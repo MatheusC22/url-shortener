@@ -16,6 +16,7 @@ func main() {
 	app := gin.Default()
 
 	routes.UrlRoutes(app)
+	routes.UserRoutes(app)
 
 	app.Run(fmt.Sprintf("localhost:%s", configs.GetServerPort()))
 }

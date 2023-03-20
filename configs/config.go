@@ -5,8 +5,9 @@ import "github.com/spf13/viper"
 var cfg *config
 
 type config struct {
-	API APIConfig
-	DB  DBConfig
+	API   APIConfig
+	DB    DBConfig
+	REDIS REDISConfig
 }
 
 type APIConfig struct {
@@ -19,6 +20,12 @@ type DBConfig struct {
 	User     string
 	Password string
 	Database string
+}
+
+type REDISConfig struct {
+	Addr     string
+	Password string
+	Db       int
 }
 
 func init() {
@@ -50,6 +57,11 @@ func Load() error {
 		Password: viper.GetString("database.password"),
 		Database: viper.GetString("database.name"),
 	}
+	cfg.REDIS = REDISConfig{
+		Addr:     viper.GetString("redis.addr"),
+		Password: viper.GetString("redis.password"),
+		Db:       viper.GetInt("redis.db"),
+	}
 
 	return nil
 }
@@ -60,4 +72,8 @@ func GetDB() DBConfig {
 
 func GetServerPort() string {
 	return cfg.API.Port
+}
+
+func GetRedis() REDISConfig {
+	return cfg.REDIS
 }

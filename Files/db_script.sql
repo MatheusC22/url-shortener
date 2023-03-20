@@ -22,7 +22,7 @@ CREATE TABLE `Urls` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `Urls` ADD CONSTRAINT `Urls_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Urls` ADD CONSTRAINT `Urls_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 -- Add Trigger
 CREATE TRIGGER `urls_expires_at` BEFORE INSERT ON `Urls` FOR EACH ROW SET new.expires_at = DATE_ADD(now(),interval 2 month);
 CREATE TRIGGER ai_uuidtable

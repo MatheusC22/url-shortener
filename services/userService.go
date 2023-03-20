@@ -44,7 +44,7 @@ func (u *userService) Update(user_id string, user models.UserDTO) (int64, error)
 	return res.RowsAffected()
 }
 
-func (u *userService) Get(user_id string) (user models.User, err error) {
+func (u *userService) Get(user_id string) (user models.UserDTO, err error) {
 	conn, err := db.OppenConnection()
 	if err != nil {
 		return
@@ -58,7 +58,7 @@ func (u *userService) Get(user_id string) (user models.User, err error) {
 	return
 }
 
-func (u userService) GetAll() (users []models.User, err error) {
+func (u userService) GetAll() (users []models.UserDTO, err error) {
 	conn, err := db.OppenConnection()
 	if err != nil {
 		return
@@ -71,7 +71,7 @@ func (u userService) GetAll() (users []models.User, err error) {
 		return
 	}
 	for rows.Next() {
-		var user models.User
+		var user models.UserDTO
 
 		err = rows.Scan(&user.User_id, &user.User_email, &user.User_password, &user.Username)
 		if err != nil {
@@ -91,11 +91,28 @@ func (u *userService) Delete(user_id string) (int64, error) {
 	}
 	defer conn.Close()
 
-	res, err := conn.Exec(fmt.Sprintf("DELETE FROM users WHERE id = %s", user_id))
+	res, err := conn.Exec(fmt.Sprintf("DELETE FROM users WHERE user_id = '%s'", user_id))
 
 	if err != nil {
 		return 0, err
 	}
 
 	return res.RowsAffected()
+}
+
+func (u *userService) UserExists(user_id string) (bool, error) {
+	conn, err := db.OppenConnection()
+	var count int
+	if err != nil {
+		return false, err
+	}
+	defer conn.Close()
+
+	err = conn.QueryRow(fmt.Sprintf("SELECT COUNT(user_id) FROM users WHERE user_id = '%s'", user_id)).Scan(&count)
+
+	if count == 0 {
+		return false, err
+	}
+
+	return true, err
 }

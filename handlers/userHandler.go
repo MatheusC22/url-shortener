@@ -76,7 +76,7 @@ func (u *userHandler) DeleteUSer(ctx *gin.Context) {
 	user_id := ctx.Param("user_id")
 	userService := services.NewUserService()
 
-	resp, err := userService.Delete(user_id)
+	response, err := userService.Delete(user_id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"Message": "Erro ao deletar o usuario!",
@@ -84,14 +84,15 @@ func (u *userHandler) DeleteUSer(ctx *gin.Context) {
 		})
 		return
 	}
-	if resp != 1 {
+
+	if response != 1 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"Message": "Usuario nao encontrado!",
 		})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
+	ctx.JSON(http.StatusNoContent, gin.H{
 		"Message": "usuario deletado com sucesso!",
 	})
 }
@@ -109,6 +110,7 @@ func (u *userHandler) UpdateUser(ctx *gin.Context) {
 	}
 
 	resp, err := userService.Update(user_id, user)
+
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"Message": "Erro ao atualizar o usuario!",
@@ -116,6 +118,7 @@ func (u *userHandler) UpdateUser(ctx *gin.Context) {
 		})
 		return
 	}
+
 	if resp != 1 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"Message": "Usuario nao encontrado!",

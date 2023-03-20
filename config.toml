@@ -7,3 +7,8 @@ password = "secret"
 user = "root"
 port = "3306"
 name = "das_univem"
+
+[redis]
+addr = "localhost:6379"
+password = ""
+db = 0
