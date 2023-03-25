@@ -17,14 +17,13 @@ func NewUrlHandler() *urlHandler {
 }
 
 func (u *urlHandler) CreateUrl(ctx *gin.Context) {
-	var url models.UrlDTO
+	var url models.UrlCreateRequest
 	redisService := services.NewRedisService()
 	urlService := services.NewUrlService()
 
 	if err := ctx.BindJSON(&url); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"Message": "Corpo da Requisição Malformatado!",
-			"Error":   err,
 		})
 	}
 
@@ -38,7 +37,7 @@ func (u *urlHandler) CreateUrl(ctx *gin.Context) {
 	}
 
 	redisService.Set(url_hash, url.Url_original) // INSERT URL IN CACHE
-	ctx.JSON(http.StatusOK, gin.H{
+	ctx.JSON(http.StatusCreated, gin.H{
 		"Message":  "url criada com sucesso!",
 		"url_hash": url_hash,
 	})
@@ -95,7 +94,7 @@ func (u *urlHandler) RedirectToUrl(ctx *gin.Context) {
 	url, err := urlService.Get(url_hash)
 	if err == sql.ErrNoRows {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"Message": "URL nao encotrada",
+			"Message": "URL nao encontrada",
 		})
 		return
 	}
@@ -129,7 +128,7 @@ func (u *urlHandler) DeleteUrl(ctx *gin.Context) {
 		return
 	}
 	redisService.Del(url_hash) // DELETE URL FROM CACHE
-	ctx.JSON(http.StatusOK, gin.H{
+	ctx.JSON(http.StatusNoContent, gin.H{
 		"Message": "URL deletada com sucesso!",
 	})
 }

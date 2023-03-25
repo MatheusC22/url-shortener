@@ -15,7 +15,7 @@ func NewUrlService() *urlService {
 	return &urlService{}
 }
 
-func (u *urlService) Insert(url models.UrlDTO) (url_hash string, err error) {
+func (u *urlService) Insert(url models.UrlCreateRequest) (url_hash string, err error) {
 	conn, err := db.OppenConnection()
 	if err != nil {
 		return
@@ -47,22 +47,21 @@ func (u *urlService) Get(url_hash string) (url_original string, err error) {
 
 	return
 }
-func (u *urlService) GetAll() (urls []models.UrlDTO, err error) {
+func (u *urlService) GetAll() (urls []models.UrlResponse, err error) {
 	conn, err := db.OppenConnection()
 	if err != nil {
 		return
 	}
 	defer conn.Close()
 
-	rows, err := conn.Query(`SELECT * FROM urls`)
+	rows, err := conn.Query(`SELECT url_hash,url_original FROM urls`)
 
 	if err != nil {
 		return
 	}
 	for rows.Next() {
-		var url models.UrlDTO
-
-		err = rows.Scan(&url.Url_hash, &url.Url_original, &url.User_id)
+		var url models.UrlResponse
+		err = rows.Scan(&url.Url_hash, &url.Url_original)
 		if err != nil {
 			continue
 		}
@@ -89,7 +88,7 @@ func (u *urlService) Delete(url_hash string) (int64, error) {
 	return res.RowsAffected()
 }
 
-func (u *urlService) Update(url_hash string, url models.UrlDTO) (int64, error) {
+func (u *urlService) Update(url_hash string, url models.UrlUpdateRequest) (int64, error) {
 	conn, err := db.OppenConnection()
 	if err != nil {
 		return 0, err

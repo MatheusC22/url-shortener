@@ -8,10 +8,15 @@ type config struct {
 	API   APIConfig
 	DB    DBConfig
 	REDIS REDISConfig
+	JWT   JWTConfig
 }
 
 type APIConfig struct {
 	Port string
+}
+
+type JWTConfig struct {
+	Secret string
 }
 
 type DBConfig struct {
@@ -50,6 +55,9 @@ func Load() error {
 	cfg.API = APIConfig{
 		Port: viper.GetString("api.port"),
 	}
+	cfg.JWT = JWTConfig{
+		Secret: viper.GetString("JWT.secret"),
+	}
 	cfg.DB = DBConfig{
 		Host:     viper.GetString("database.host"),
 		Port:     viper.GetString("database.port"),
@@ -72,6 +80,10 @@ func GetDB() DBConfig {
 
 func GetServerPort() string {
 	return cfg.API.Port
+}
+
+func GetJWTSecret() string {
+	return cfg.JWT.Secret
 }
 
 func GetRedis() REDISConfig {

@@ -13,7 +13,7 @@ func NewUserService() *userService {
 	return &userService{}
 }
 
-func (u *userService) Insert(user models.UserDTO) (user_id string, err error) {
+func (u *userService) Insert(user models.UserRequest) (user_id string, err error) {
 	conn, err := db.OppenConnection()
 	if err != nil {
 		return
@@ -28,7 +28,7 @@ func (u *userService) Insert(user models.UserDTO) (user_id string, err error) {
 	return
 }
 
-func (u *userService) Update(user_id string, user models.UserDTO) (int64, error) {
+func (u *userService) Update(user_id string, user models.UserRequest) (int64, error) {
 	conn, err := db.OppenConnection()
 	if err != nil {
 		return 0, err
@@ -44,7 +44,7 @@ func (u *userService) Update(user_id string, user models.UserDTO) (int64, error)
 	return res.RowsAffected()
 }
 
-func (u *userService) Get(user_id string) (user models.UserDTO, err error) {
+func (u *userService) GetById(user_id string) (user models.User, err error) {
 	conn, err := db.OppenConnection()
 	if err != nil {
 		return
@@ -52,28 +52,42 @@ func (u *userService) Get(user_id string) (user models.UserDTO, err error) {
 
 	defer conn.Close()
 
-	row := conn.QueryRow(fmt.Sprintf("SELECT * FROM users WHERE user_id = %s", user_id))
+	row := conn.QueryRow(fmt.Sprintf("SELECT user_id,user_email,username,user_password FROM users WHERE user_id = '%s'", user_id))
 
-	err = row.Scan(&user.User_id, &user.User_email, &user.User_password, &user.Username)
+	err = row.Scan(&user.User_id, &user.User_email, &user.Username, &user.User_password)
 	return
 }
 
-func (u userService) GetAll() (users []models.UserDTO, err error) {
+func (u *userService) GetByEmail(user_email string) (user models.User, err error) {
+	conn, err := db.OppenConnection()
+	if err != nil {
+		return
+	}
+
+	defer conn.Close()
+
+	row := conn.QueryRow(fmt.Sprintf("SELECT user_id,user_email,username,user_password FROM users WHERE user_email = '%s'", user_email))
+
+	err = row.Scan(&user.User_id, &user.User_email, &user.Username, &user.User_password)
+	return
+}
+
+func (u userService) GetAll() (users []models.UserResponse, err error) {
 	conn, err := db.OppenConnection()
 	if err != nil {
 		return
 	}
 	defer conn.Close()
 
-	rows, err := conn.Query(`SELECT * FROM users`)
+	rows, err := conn.Query(`SELECT user_email,username FROM users`)
 
 	if err != nil {
 		return
 	}
 	for rows.Next() {
-		var user models.UserDTO
+		var user models.UserResponse
 
-		err = rows.Scan(&user.User_id, &user.User_email, &user.User_password, &user.Username)
+		err = rows.Scan(&user.User_email, &user.Username)
 		if err != nil {
 			continue
 		}

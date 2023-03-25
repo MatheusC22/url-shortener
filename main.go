@@ -17,6 +17,7 @@ func main() {
 
 	routes.UrlRoutes(app)
 	routes.UserRoutes(app)
+	routes.AuthRoutes(app)
 
 	app.Run(fmt.Sprintf("localhost:%s", configs.GetServerPort()))
 }
