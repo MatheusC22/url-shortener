@@ -8,9 +8,9 @@ type User struct {
 }
 
 type UserRequest struct {
-	Username      string `json:"username"`
-	User_email    string `json:"user_email"`
-	User_password string `json:"user_password"`
+	Username      string `json:"username" binding:"required"`
+	User_email    string `json:"user_email" binding:"required"`
+	User_password string `json:"user_password" binding:"required"`
 }
 
 type UserResponse struct {
@@ -23,6 +23,6 @@ type UserJWTPayload struct {
 }
 
 type UserLoginRequest struct {
-	User_email    string `json:"user_email"`
-	User_password string `json:"user_password"`
+	User_email    string `json:"user_email" binding:"required"`
+	User_password string `json:"user_password" binding:"required"`
 }

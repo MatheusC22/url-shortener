@@ -9,12 +9,12 @@ type Url struct {
 }
 
 type UrlCreateRequest struct {
-	Url_hash     string `json:"url_hash"`
-	Url_original string `json:"url_original"`
-	User_id      string `json:"user_id"`
+	Url_hash     string `json:"url_hash" binding:"required"`
+	Url_original string `json:"url_original" binding:"required"`
+	User_id      string `json:"user_id" binding:"required"`
 }
 type UrlUpdateRequest struct {
-	Url_original string `json:"url_original"`
+	Url_original string `json:"url_original" binding:"required"`
 }
 type UrlResponse struct {
 	Url_hash     string `json:"url_hash"`
