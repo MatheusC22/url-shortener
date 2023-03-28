@@ -114,7 +114,7 @@ func (u *userService) Delete(user_id string) (int64, error) {
 	return res.RowsAffected()
 }
 
-func (u *userService) UserExists(user_id string) (bool, error) {
+func (u *userService) UserExists(user_email string) (bool, error) {
 	conn, err := db.OppenConnection()
 	var count int
 	if err != nil {
@@ -122,7 +122,11 @@ func (u *userService) UserExists(user_id string) (bool, error) {
 	}
 	defer conn.Close()
 
-	err = conn.QueryRow(fmt.Sprintf("SELECT COUNT(user_id) FROM users WHERE user_id = '%s'", user_id)).Scan(&count)
+	err = conn.QueryRow(fmt.Sprintf("SELECT COUNT(user_id) FROM users WHERE user_email = '%s'", user_email)).Scan(&count)
+
+	if err != nil {
+		return false, err
+	}
 
 	if count == 0 {
 		return false, err
