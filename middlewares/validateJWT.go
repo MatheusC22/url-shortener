@@ -1,9 +1,8 @@
 package middlewares
 
 import (
-	"fmt"
 	"goAPI/configs"
-	"net/http"
+	"goAPI/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -12,23 +11,18 @@ import (
 func ValidateJWT() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		AuthHeader := ctx.Request.Header.Get("Authorization")
-		fmt.Println(AuthHeader)
 		if AuthHeader != "" {
 			token, err := jwt.Parse(AuthHeader, func(t *jwt.Token) (interface{}, error) {
 				_, ok := t.Method.(*jwt.SigningMethodHMAC)
 				if !ok {
-					ctx.JSON(http.StatusUnauthorized, gin.H{
-						"Message": "Nao autorizado",
-					})
+					utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Nao Autorizado", HttpCode: 401})
 					ctx.Abort()
 				}
 				return []byte(configs.GetJWTSecret()), nil
 			})
 
 			if err != nil {
-				ctx.JSON(http.StatusUnauthorized, gin.H{
-					"Message": "Nao autorizado",
-				})
+				utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Nao Autorizado", HttpCode: 401})
 				ctx.Abort()
 			}
 
@@ -36,10 +30,7 @@ func ValidateJWT() gin.HandlerFunc {
 				ctx.Next()
 			}
 		} else {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"Message": "Nao autorizado",
-				"last":    true,
-			})
+			utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Nao Autorizado", HttpCode: 401})
 			ctx.Abort()
 		}
 	}
