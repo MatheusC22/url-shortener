@@ -25,6 +25,13 @@ func ValidateJWT() gin.HandlerFunc {
 				utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Nao Autorizado", HttpCode: 401})
 				ctx.Abort()
 			}
+			claim, ok := token.Claims.(jwt.MapClaims)
+			if !ok {
+				utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Payload nao encontrado", HttpCode: 401})
+				ctx.Abort()
+			}
+			//setting the user_id to the context
+			ctx.Set("user_id_payload", claim["sub"].(string))
 
 			if token.Valid {
 				ctx.Next()
