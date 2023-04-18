@@ -71,7 +71,7 @@ func (u *userHandler) GetUSer(ctx *gin.Context) {
 		utils.ReturnUnexpectedError(ctx, err)
 		return
 	}
-	user.User_password = ""
+	user.User_password = "{removed}"
 	ctx.JSON(http.StatusOK, user)
 }
 func (u *userHandler) DeleteUSer(ctx *gin.Context) {

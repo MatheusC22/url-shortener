@@ -13,10 +13,10 @@ func UserRoutes(router *gin.Engine) *gin.RouterGroup {
 	userRouter := router.Group("/user")
 	{
 		userRouter.POST("/", userHandler.CreateUser)
-		userRouter.GET("/", middlewares.ValidateJWT(), userHandler.GetAllUSers)
-		userRouter.GET("/:user_id", middlewares.ValidateJWT(), userHandler.GetUSer)
-		userRouter.DELETE("/:user_id", middlewares.ValidateJWT(), userHandler.DeleteUSer)
-		userRouter.PUT("/:user_id", middlewares.ValidateJWT(), userHandler.UpdateUser)
+		userRouter.GET("/", userHandler.GetAllUSers)
+		userRouter.GET("/:user_id", middlewares.ValidateJWT(), middlewares.EnsureRightUser(), userHandler.GetUSer)
+		userRouter.DELETE("/:user_id", middlewares.ValidateJWT(), middlewares.EnsureRightUser(), userHandler.DeleteUSer)
+		userRouter.PUT("/:user_id", middlewares.ValidateJWT(), middlewares.EnsureRightUser(), userHandler.UpdateUser)
 	}
 	return userRouter
 }

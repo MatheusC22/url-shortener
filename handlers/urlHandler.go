@@ -77,10 +77,7 @@ func (u *urlHandler) RedirectToUrl(ctx *gin.Context) {
 
 	cache_val, err := redisService.Get(url_hash)
 	if err == nil {
-		ctx.JSON(http.StatusOK, gin.H{
-			"cache": true,
-			"url":   cache_val,
-		})
+		ctx.Redirect(http.StatusMovedPermanently, cache_val)
 		return
 	}
 	url, err := urlService.Get(url_hash)
