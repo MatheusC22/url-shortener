@@ -79,7 +79,7 @@ func (u userService) GetAll() (users []models.UserResponse, err error) {
 	}
 	defer conn.Close()
 
-	rows, err := conn.Query(`SELECT user_email,username FROM users`)
+	rows, err := conn.Query(`SELECT user_email,username,user_id FROM users`)
 
 	if err != nil {
 		return
@@ -87,7 +87,7 @@ func (u userService) GetAll() (users []models.UserResponse, err error) {
 	for rows.Next() {
 		var user models.UserResponse
 
-		err = rows.Scan(&user.User_email, &user.Username)
+		err = rows.Scan(&user.User_email, &user.Username, &user.User_id)
 		if err != nil {
 			continue
 		}

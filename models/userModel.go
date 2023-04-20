@@ -16,6 +16,7 @@ type UserRequest struct {
 type UserResponse struct {
 	Username   string `json:"username"`
 	User_email string `json:"user_email"`
+	User_id    string `json:"user_id"`
 }
 
 type UserJWTPayload struct {

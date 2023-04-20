@@ -3,6 +3,7 @@ package middlewares
 import (
 	"goAPI/configs"
 	"goAPI/utils"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -11,8 +12,14 @@ import (
 func ValidateJWT() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		AuthHeader := ctx.Request.Header.Get("Authorization")
-		if AuthHeader != "" {
-			token, err := jwt.Parse(AuthHeader, func(t *jwt.Token) (interface{}, error) {
+		SplitToken := strings.Split(AuthHeader, " ")
+		if SplitToken[0] != "Bearer" {
+			utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Nao Autorizado", HttpCode: 401})
+			ctx.Abort()
+		}
+
+		if SplitToken[1] != "" {
+			token, err := jwt.Parse(SplitToken[1], func(t *jwt.Token) (interface{}, error) {
 				_, ok := t.Method.(*jwt.SigningMethodHMAC)
 				if !ok {
 					utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Nao Autorizado", HttpCode: 401})
