@@ -19,6 +19,8 @@ func NewUrlHandler() *urlHandler {
 
 func (u *urlHandler) CreateUrl(ctx *gin.Context) {
 	var url models.UrlCreateRequest
+	id, _ := ctx.Get("user_id_payload")
+	url.User_id = id.(string)
 	redisService := services.NewRedisService()
 	urlService := services.NewUrlService()
 
@@ -39,8 +41,18 @@ func (u *urlHandler) CreateUrl(ctx *gin.Context) {
 		"url_hash": url_hash,
 	})
 }
+func (u *urlHandler) GetAll(ctx *gin.Context) {
+	urlService := services.NewUrlService()
 
-func (u *urlHandler) GetUrl(ctx *gin.Context) {
+	urls, err := urlService.GetAll()
+	if err != nil {
+		utils.ReturnUnexpectedError(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, urls)
+}
+
+func (u *urlHandler) GetUrlByHash(ctx *gin.Context) {
 	url_hash := ctx.Param("url_hash")
 	redisService := services.NewRedisService()
 	urlService := services.NewUrlService()
@@ -56,7 +68,7 @@ func (u *urlHandler) GetUrl(ctx *gin.Context) {
 	}
 
 	//database
-	url, err := urlService.Get(url_hash)
+	url, err := urlService.GetByHash(url_hash)
 	if err == sql.ErrNoRows {
 		utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Url nao encontrada", HttpCode: 400})
 		return
@@ -80,7 +92,7 @@ func (u *urlHandler) RedirectToUrl(ctx *gin.Context) {
 		ctx.Redirect(http.StatusMovedPermanently, cache_val)
 		return
 	}
-	url, err := urlService.Get(url_hash)
+	url, err := urlService.GetByHash(url_hash)
 	if err == sql.ErrNoRows {
 		utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Url nao encontrada", HttpCode: 400})
 		return

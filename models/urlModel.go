@@ -10,7 +10,7 @@ type Url struct {
 
 type UrlCreateRequest struct {
 	Url_original string `json:"url_original" binding:"required"`
-	User_id      string `json:"user_id" binding:"required"`
+	User_id      string
 }
 type UrlUpdateRequest struct {
 	Url_original string `json:"url_original" binding:"required"`

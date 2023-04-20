@@ -34,7 +34,7 @@ func (u *urlService) Insert(url models.UrlCreateRequest) (url_hash string, err e
 	return
 }
 
-func (u *urlService) Get(url_hash string) (url_original string, err error) {
+func (u *urlService) GetByHash(url_hash string) (url_original string, err error) {
 	conn, err := db.OppenConnection()
 	if err != nil {
 		return
