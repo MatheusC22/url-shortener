@@ -12,7 +12,8 @@ type config struct {
 }
 
 type APIConfig struct {
-	Port string
+	Port_1 string
+	Port_2 string
 }
 
 type JWTConfig struct {
@@ -34,7 +35,8 @@ type REDISConfig struct {
 }
 
 func init() {
-	viper.SetDefault("api.port", "3001")
+	viper.SetDefault("api.port_1", ":3001")
+	viper.SetDefault("api.port_2", ":3002")
 	viper.SetDefault("database.host", "localhost")
 	viper.SetDefault("database.port", "3306")
 }
@@ -53,7 +55,8 @@ func Load() error {
 	cfg = new(config)
 
 	cfg.API = APIConfig{
-		Port: viper.GetString("api.port"),
+		Port_1: viper.GetString("api.port_1"),
+		Port_2: viper.GetString("api.port_2"),
 	}
 	cfg.JWT = JWTConfig{
 		Secret: viper.GetString("JWT.secret"),
@@ -78,8 +81,8 @@ func GetDB() DBConfig {
 	return cfg.DB
 }
 
-func GetServerPort() string {
-	return cfg.API.Port
+func GetApi() APIConfig {
+	return cfg.API
 }
 
 func GetJWTSecret() string {
