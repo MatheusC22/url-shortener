@@ -35,9 +35,6 @@ type REDISConfig struct {
 }
 
 func init() {
-	viper.SetDefault("api.port_1", ":3001")
-	viper.SetDefault("api.port_2", ":3002")
-	viper.SetDefault("database.host", "localhost")
 	viper.SetDefault("database.port", "3306")
 }
 

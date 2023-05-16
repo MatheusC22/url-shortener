@@ -27,7 +27,7 @@ func (u *urlService) Insert(url models.UrlCreateRequest) (url_hash string, err e
 	}
 	url_hash = hex.EncodeToString(bytes)
 
-	_, err = conn.Exec(fmt.Sprintf("INSERT INTO urls (url_hash,url_original,user_id) VALUES ('%s','%s','%s')", url_hash, url.Url_original, url.User_id))
+	_, err = conn.Exec(fmt.Sprintf("INSERT INTO Urls (url_hash,url_original,user_id) VALUES ('%s','%s','%s')", url_hash, url.Url_original, url.User_id))
 	if err != nil {
 		return
 	}
@@ -41,7 +41,7 @@ func (u *urlService) GetByHash(url_hash string) (url_original string, err error)
 	}
 	defer conn.Close()
 
-	row := conn.QueryRow(fmt.Sprintf("SELECT url_original FROM urls WHERE url_hash = '%s'", url_hash))
+	row := conn.QueryRow(fmt.Sprintf("SELECT url_original FROM Urls WHERE url_hash = '%s'", url_hash))
 
 	err = row.Scan(&url_original)
 
@@ -54,7 +54,7 @@ func (u *urlService) GetAll() (urls []models.UrlResponse, err error) {
 	}
 	defer conn.Close()
 
-	rows, err := conn.Query(`SELECT url_hash,url_original FROM urls`)
+	rows, err := conn.Query(`SELECT url_hash,url_original FROM Urls`)
 
 	if err != nil {
 		return
@@ -79,7 +79,7 @@ func (u *urlService) Delete(url_hash string) (int64, error) {
 	}
 	defer conn.Close()
 
-	res, err := conn.Exec(fmt.Sprintf("DELETE FROM urls WHERE url_hash = %s", url_hash))
+	res, err := conn.Exec(fmt.Sprintf("DELETE FROM Urls WHERE url_hash = %s", url_hash))
 
 	if err != nil {
 		return 0, err
@@ -95,7 +95,7 @@ func (u *urlService) Update(url_hash string, url models.UrlUpdateRequest) (int64
 	}
 	defer conn.Close()
 
-	res, err := conn.Exec(fmt.Sprintf("UPDATE urls SET url_original = %s WHERE url_hash = %s", url.Url_original, url_hash))
+	res, err := conn.Exec(fmt.Sprintf("UPDATE Urls SET url_original = %s WHERE url_hash = %s", url.Url_original, url_hash))
 
 	if err != nil {
 		return 0, err

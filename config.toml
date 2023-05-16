@@ -1,14 +1,18 @@
 [api]
-port = "3001"
+port_1 = ":3001"
+port_2 = ":3002"
 
 [database]
-host = "localhost"
-password = "secret"
-user = "root"
+host = ""
+password = ""
+user = ""
 port = "3306"
-name = "das_univem"
+name = ""
 
 [redis]
 addr = "localhost:6379"
 password = ""
 db = 0
+
+[jwt]
+secret = ""
