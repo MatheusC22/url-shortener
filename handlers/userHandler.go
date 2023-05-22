@@ -26,12 +26,12 @@ func (u *userHandler) CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	exists, err := userService.UserExists(user.User_email)
+	exist, err := userService.UserExists(user.User_email)
 	if err != nil {
 		utils.ReturnUnexpectedError(ctx, err)
 		return
 	}
-	if exists == true {
+	if exist {
 		utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Usuario ja existe!", HttpCode: 400})
 		return
 	}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"goAPI/configs"
+	"goAPI/handlers"
 	"goAPI/routes"
 	"log"
 	"net/http"
@@ -55,6 +56,24 @@ func router02() http.Handler {
 	return r2
 }
 
+func routerGraphql() http.Handler {
+	r3 := gin.New()
+	r3.Use(gin.Recovery())
+	r3.GET("/playground", handlers.PlaygroundHandler())
+	r3.POST("/query", handlers.GraphQLHandler())
+	r3.GET("/ping", func(c *gin.Context) {
+		c.JSON(
+			http.StatusOK,
+			gin.H{
+				"code":    http.StatusOK,
+				"message": "Pong",
+				"Server":  03,
+			},
+		)
+	})
+	return r3
+}
+
 func main() {
 	err := configs.Load()
 	if err != nil {
@@ -76,6 +95,13 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 	}
 
+	serverGraphQL := &http.Server{
+		Addr:         apiConfig.Port_grapql,
+		Handler:      routerGraphql(),
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
+
 	g.Go(func() error {
 		return server01.ListenAndServe()
 	})
@@ -84,7 +110,14 @@ func main() {
 		return server02.ListenAndServe()
 	})
 
+	g.Go(func() error {
+		// log.Printf("connect to http://localhost:%s/playground for GraphQL playground", apiConfig.Port_grapql)
+		// log.Fatal(http.ListenAndServe(":"+apiConfig.Port_grapql, nil))
+		return serverGraphQL.ListenAndServe()
+	})
+
 	if err := g.Wait(); err != nil {
 		log.Fatal(err)
 	}
+
 }

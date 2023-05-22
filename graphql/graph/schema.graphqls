@@ -1,0 +1,22 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Endpoint {
+  endpoint_id:ID!
+  endpoint_name:String!
+  entries:Int!
+}
+
+type Query {
+  endpoints: [Endpoint!]!
+  endpoint(id: ID!):Endpoint! 
+}
+
+input updateEndpointinput{
+  endpoint_name:String
+}
+
+type Mutation {
+  updateEndpoint(input:updateEndpointinput):Endpoint
+}
