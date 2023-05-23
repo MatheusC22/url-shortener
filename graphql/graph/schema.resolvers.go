@@ -6,23 +6,23 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"goAPI/graphql/graph/model"
+	"goAPI/services"
 )
 
 // UpdateEndpoint is the resolver for the updateEndpoint field.
 func (r *mutationResolver) UpdateEndpoint(ctx context.Context, input *model.UpdateEndpointinput) (*model.Endpoint, error) {
-	panic(fmt.Errorf("not implemented: UpdateEndpoint - updateEndpoint"))
+	return services.UpdateEndpoint(*input.EndpointName), nil
 }
 
 // Endpoints is the resolver for the endpoints field.
 func (r *queryResolver) Endpoints(ctx context.Context) ([]*model.Endpoint, error) {
-	panic(fmt.Errorf("not implemented: Endpoints - endpoints"))
+	return services.GetEndpoints(), nil
 }
 
 // Endpoint is the resolver for the endpoint field.
 func (r *queryResolver) Endpoint(ctx context.Context, id string) (*model.Endpoint, error) {
-	panic(fmt.Errorf("not implemented: Endpoint - endpoint"))
+	return services.GetEndpoint(id), nil
 }
 
 // Mutation returns MutationResolver implementation.
