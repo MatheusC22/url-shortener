@@ -1,7 +1,6 @@
 [api]
 port_1 = ":3001"
 port_2 = ":3002"
-port_graphql = ":8080"
 
 [database]
 host = ""

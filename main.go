@@ -16,6 +16,7 @@ var (
 )
 
 func router01() http.Handler {
+	gin.SetMode(gin.ReleaseMode)
 	r1 := gin.New()
 	r1.Use(gin.Recovery())
 	routes.UrlRoutes(r1)
@@ -36,6 +37,7 @@ func router01() http.Handler {
 }
 
 func router02() http.Handler {
+	gin.SetMode(gin.ReleaseMode)
 	r2 := gin.New()
 	r2.Use(gin.Recovery())
 	routes.UrlRoutes(r2)

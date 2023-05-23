@@ -9,7 +9,7 @@ import (
 
 func UrlRoutes(router *gin.Engine) *gin.RouterGroup {
 	urlHandler := handlers.NewUrlHandler()
-
+	gin.SetMode(gin.ReleaseMode)
 	urlRouter := router.Group("/url")
 	{
 		urlRouter.POST("/", middlewares.ValidateJWT(), urlHandler.CreateUrl)

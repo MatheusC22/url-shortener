@@ -8,7 +8,7 @@ import (
 
 func AuthRoutes(router *gin.Engine) *gin.RouterGroup {
 	userHandler := handlers.NewUserHandler()
-
+	gin.SetMode(gin.ReleaseMode)
 	authRouter := router.Group("/login")
 	{
 		authRouter.POST("/", userHandler.Login)

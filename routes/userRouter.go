@@ -9,7 +9,7 @@ import (
 
 func UserRoutes(router *gin.Engine) *gin.RouterGroup {
 	userHandler := handlers.NewUserHandler()
-
+	gin.SetMode(gin.ReleaseMode)
 	userRouter := router.Group("/user")
 	{
 		userRouter.POST("/", userHandler.CreateUser)
