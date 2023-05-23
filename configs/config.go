@@ -12,9 +12,8 @@ type config struct {
 }
 
 type APIConfig struct {
-	Port_1      string
-	Port_2      string
-	Port_grapql string
+	Port_1 string
+	Port_2 string
 }
 
 type JWTConfig struct {
@@ -53,9 +52,8 @@ func Load() error {
 	cfg = new(config)
 
 	cfg.API = APIConfig{
-		Port_1:      viper.GetString("api.port_1"),
-		Port_2:      viper.GetString("api.port_2"),
-		Port_grapql: viper.GetString("api.port_graphql"),
+		Port_1: viper.GetString("api.port_1"),
+		Port_2: viper.GetString("api.port_2"),
 	}
 	cfg.JWT = JWTConfig{
 		Secret: viper.GetString("JWT.secret"),
