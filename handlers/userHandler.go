@@ -20,6 +20,7 @@ func NewUserHandler() *userHandler {
 func (u *userHandler) CreateUser(ctx *gin.Context) {
 	var user models.UserRequest
 	userService := services.NewUserService()
+	queueService := services.NewRabbitMQService()
 
 	if err := ctx.BindJSON(&user); err != nil {
 		utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Corpo da Requisicao Malformatado", HttpCode: 400})
@@ -42,6 +43,8 @@ func (u *userHandler) CreateUser(ctx *gin.Context) {
 		return
 	}
 	//succes
+	queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
+	defer queueService.Conn.Close()
 	ctx.JSON(http.StatusCreated, gin.H{
 		"Message": "usuario criado com sucesso!",
 		"user_id": user_id,
@@ -50,17 +53,21 @@ func (u *userHandler) CreateUser(ctx *gin.Context) {
 
 func (u *userHandler) GetAllUSers(ctx *gin.Context) {
 	userService := services.NewUserService()
+	queueService := services.NewRabbitMQService()
 	users, err := userService.GetAll()
 	if err != nil {
 		utils.ReturnUnexpectedError(ctx, err)
 		return
 	}
+	queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
+	defer queueService.Conn.Close()
 	ctx.JSON(http.StatusOK, users)
 }
 
 func (u *userHandler) GetUSer(ctx *gin.Context) {
 	user_id := ctx.Param("user_id")
 	userService := services.NewUserService()
+	queueService := services.NewRabbitMQService()
 	user, err := userService.GetById(user_id)
 
 	if err == sql.ErrNoRows {
@@ -72,12 +79,14 @@ func (u *userHandler) GetUSer(ctx *gin.Context) {
 		return
 	}
 	user.User_password = "{removed}"
+	queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
+	defer queueService.Conn.Close()
 	ctx.JSON(http.StatusOK, user)
 }
 func (u *userHandler) DeleteUSer(ctx *gin.Context) {
 	user_id := ctx.Param("user_id")
 	userService := services.NewUserService()
-
+	queueService := services.NewRabbitMQService()
 	response, err := userService.Delete(user_id)
 	if err != nil {
 		utils.ReturnUnexpectedError(ctx, err)
@@ -89,6 +98,8 @@ func (u *userHandler) DeleteUSer(ctx *gin.Context) {
 		return
 	}
 	//success
+	queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
+	defer queueService.Conn.Close()
 	ctx.JSON(http.StatusNoContent, gin.H{
 		"Message": "usuario deletado com sucesso!",
 	})
@@ -98,6 +109,7 @@ func (u *userHandler) UpdateUser(ctx *gin.Context) {
 	var user models.UserRequest
 	user_id := ctx.Param("user_id")
 	userService := services.NewUserService()
+	queueService := services.NewRabbitMQService()
 
 	if err := ctx.BindJSON(&user); err != nil {
 		utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Corpo da Requisicao Malformatado", HttpCode: 400})
@@ -116,6 +128,8 @@ func (u *userHandler) UpdateUser(ctx *gin.Context) {
 		return
 	}
 	//sueccess
+	queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
+	defer queueService.Conn.Close()
 	ctx.JSON(http.StatusOK, gin.H{
 		"Message": "usuario atualizado com sucesso!",
 	})
@@ -124,6 +138,7 @@ func (u *userHandler) UpdateUser(ctx *gin.Context) {
 func (u *userHandler) Login(ctx *gin.Context) {
 	var request models.UserLoginRequest
 	userService := services.NewUserService()
+	queueService := services.NewRabbitMQService()
 
 	if err := ctx.BindJSON(&request); err != nil {
 		utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Corpo da Requisicao Malformatado", HttpCode: 400})
@@ -143,6 +158,8 @@ func (u *userHandler) Login(ctx *gin.Context) {
 			return
 		}
 		//success
+		queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
+		defer queueService.Conn.Close()
 		ctx.Header("Authorization", token)
 		ctx.JSON(http.StatusOK, gin.H{
 			"Message": "logado com sucesso!",

@@ -16,7 +16,7 @@ var (
 )
 
 func router01() http.Handler {
-	gin.SetMode(gin.ReleaseMode)
+	//gin.SetMode(gin.ReleaseMode)
 	r1 := gin.New()
 	r1.Use(gin.Recovery())
 	routes.UrlRoutes(r1)
@@ -29,6 +29,7 @@ func router01() http.Handler {
 				"code":    http.StatusOK,
 				"message": "Pong",
 				"Server":  01,
+				"URL":     c.FullPath(),
 			},
 		)
 	})
@@ -37,7 +38,7 @@ func router01() http.Handler {
 }
 
 func router02() http.Handler {
-	gin.SetMode(gin.ReleaseMode)
+	//gin.SetMode(gin.ReleaseMode)
 	r2 := gin.New()
 	r2.Use(gin.Recovery())
 	routes.UrlRoutes(r2)
@@ -50,6 +51,7 @@ func router02() http.Handler {
 				"code":    http.StatusOK,
 				"message": "Pong",
 				"Server":  02,
+				"URL":     c.Request.URL.Path,
 			},
 		)
 	})
