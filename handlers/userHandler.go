@@ -8,20 +8,32 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/newrelic/go-agent/v3/newrelic"
 )
 
 type userHandler struct {
 	H_queueService services.RabbitmqService
+	app            *newrelic.Application
 }
 
 func NewUserHandler() *userHandler {
+	new_app, err := newrelic.NewApplication(
+		newrelic.ConfigAppName("url-shortener"),
+		newrelic.ConfigLicense(""),
+		newrelic.ConfigAppLogForwardingEnabled(true),
+	)
+	if err != nil {
+		panic(err)
+	}
 	queueService := services.NewRabbitMQService()
-	return &userHandler{H_queueService: *queueService}
+	return &userHandler{H_queueService: *queueService, app: new_app}
 }
 
 func (u *userHandler) CreateUser(ctx *gin.Context) {
 	var user models.UserRequest
 	userService := services.NewUserService()
+	txn := u.app.StartTransaction("CreateUser")
+	defer txn.End()
 
 	if err := ctx.BindJSON(&user); err != nil {
 		utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Corpo da Requisicao Malformatado", HttpCode: 400})
@@ -54,6 +66,8 @@ func (u *userHandler) CreateUser(ctx *gin.Context) {
 func (u *userHandler) GetAllUSers(ctx *gin.Context) {
 	userService := services.NewUserService()
 	users, err := userService.GetAll()
+	txn := u.app.StartTransaction("GetAllUSers")
+	defer txn.End()
 	if err != nil {
 		utils.ReturnUnexpectedError(ctx, err)
 		return
@@ -66,6 +80,8 @@ func (u *userHandler) GetUSer(ctx *gin.Context) {
 	user_id := ctx.Param("user_id")
 	userService := services.NewUserService()
 	user, err := userService.GetById(user_id)
+	txn := u.app.StartTransaction("GetUser")
+	defer txn.End()
 
 	if err == sql.ErrNoRows {
 		utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Usuario nao encontrado", HttpCode: 400})
@@ -82,6 +98,8 @@ func (u *userHandler) GetUSer(ctx *gin.Context) {
 func (u *userHandler) DeleteUSer(ctx *gin.Context) {
 	user_id := ctx.Param("user_id")
 	userService := services.NewUserService()
+	txn := u.app.StartTransaction("DeleteUser")
+	defer txn.End()
 	response, err := userService.Delete(user_id)
 	if err != nil {
 		utils.ReturnUnexpectedError(ctx, err)
@@ -103,6 +121,8 @@ func (u *userHandler) UpdateUser(ctx *gin.Context) {
 	var user models.UserRequest
 	user_id := ctx.Param("user_id")
 	userService := services.NewUserService()
+	txn := u.app.StartTransaction("UpdateUser")
+	defer txn.End()
 
 	if err := ctx.BindJSON(&user); err != nil {
 		utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Corpo da Requisicao Malformatado", HttpCode: 400})
@@ -130,6 +150,8 @@ func (u *userHandler) UpdateUser(ctx *gin.Context) {
 func (u *userHandler) Login(ctx *gin.Context) {
 	var request models.UserLoginRequest
 	userService := services.NewUserService()
+	txn := u.app.StartTransaction("Login")
+	defer txn.End()
 
 	if err := ctx.BindJSON(&request); err != nil {
 		utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Corpo da Requisicao Malformatado", HttpCode: 400})

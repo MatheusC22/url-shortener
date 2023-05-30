@@ -8,9 +8,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/newrelic/go-agent/v3/newrelic"
 )
 
 type urlHandler struct {
+	app            *newrelic.Application
 	H_queueService services.RabbitmqService
 	H_cacheService services.RedisService
 }
@@ -18,7 +20,15 @@ type urlHandler struct {
 func NewUrlHandler() *urlHandler {
 	queueService := services.NewRabbitMQService()
 	redisService := services.NewRedisService()
-	return &urlHandler{H_queueService: *queueService, H_cacheService: *redisService}
+	new_app, err := newrelic.NewApplication(
+		newrelic.ConfigAppName("url-shortener"),
+		newrelic.ConfigLicense(""),
+		newrelic.ConfigAppLogForwardingEnabled(true),
+	)
+	if err != nil {
+		panic(err)
+	}
+	return &urlHandler{H_queueService: *queueService, H_cacheService: *redisService, app: new_app}
 }
 
 func (u *urlHandler) CreateUrl(ctx *gin.Context) {
@@ -26,6 +36,8 @@ func (u *urlHandler) CreateUrl(ctx *gin.Context) {
 	id, _ := ctx.Get("user_id_payload")
 	url.User_id = id.(string)
 	urlService := services.NewUrlService()
+	txn := u.app.StartTransaction("CreateUrl")
+	defer txn.End()
 
 	if err := ctx.BindJSON(&url); err != nil {
 		utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Corpo da Requisicao Malformatado", HttpCode: 400})
@@ -47,6 +59,8 @@ func (u *urlHandler) CreateUrl(ctx *gin.Context) {
 }
 func (u *urlHandler) GetAll(ctx *gin.Context) {
 	urlService := services.NewUrlService()
+	txn := u.app.StartTransaction("GetAllUrl")
+	defer txn.End()
 
 	urls, err := urlService.GetAll()
 	if err != nil {
@@ -61,6 +75,8 @@ func (u *urlHandler) GetAll(ctx *gin.Context) {
 func (u *urlHandler) GetUrlByHash(ctx *gin.Context) {
 	url_hash := ctx.Param("url_hash")
 	urlService := services.NewUrlService()
+	txn := u.app.StartTransaction("GetUrlByHash")
+	defer txn.End()
 
 	//cache
 	cache_val, err := u.H_cacheService.Get(url_hash) // GET URL FROM CACHE
@@ -94,6 +110,8 @@ func (u *urlHandler) GetUrlByHash(ctx *gin.Context) {
 func (u *urlHandler) RedirectToUrl(ctx *gin.Context) {
 	url_hash := ctx.Param("url_hash")
 	urlService := services.NewUrlService()
+	txn := u.app.StartTransaction("RedirectToUrl")
+	defer txn.End()
 
 	//cache
 	cache_val, err := u.H_cacheService.Get(url_hash)
@@ -122,6 +140,8 @@ func (u *urlHandler) RedirectToUrl(ctx *gin.Context) {
 func (u *urlHandler) DeleteUrl(ctx *gin.Context) {
 	url_hash := ctx.Param("url_hash")
 	urlService := services.NewUrlService()
+	txn := u.app.StartTransaction("DeleteUrl")
+	defer txn.End()
 
 	response, err := urlService.Delete(url_hash)
 	if err != nil {
