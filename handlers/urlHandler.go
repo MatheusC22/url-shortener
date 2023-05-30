@@ -11,19 +11,21 @@ import (
 )
 
 type urlHandler struct {
+	H_queueService services.RabbitmqService
+	H_cacheService services.RedisService
 }
 
 func NewUrlHandler() *urlHandler {
-	return &urlHandler{}
+	queueService := services.NewRabbitMQService()
+	redisService := services.NewRedisService()
+	return &urlHandler{H_queueService: *queueService, H_cacheService: *redisService}
 }
 
 func (u *urlHandler) CreateUrl(ctx *gin.Context) {
 	var url models.UrlCreateRequest
 	id, _ := ctx.Get("user_id_payload")
 	url.User_id = id.(string)
-	redisService := services.NewRedisService()
 	urlService := services.NewUrlService()
-	queueService := services.NewRabbitMQService()
 
 	if err := ctx.BindJSON(&url); err != nil {
 		utils.ReturnErrorMessage(ctx, utils.HtppError{Message: "Corpo da Requisicao Malformatado", HttpCode: 400})
@@ -36,9 +38,8 @@ func (u *urlHandler) CreateUrl(ctx *gin.Context) {
 		return
 	}
 	//success
-	queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
-	defer queueService.Conn.Close()
-	redisService.Set(url_hash, url.Url_original) // INSERT URL IN CACHE
+	u.H_queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
+	u.H_cacheService.Set(url_hash, url.Url_original) // INSERT URL IN CACHE
 	ctx.JSON(http.StatusCreated, gin.H{
 		"Message":  "url criada com sucesso!",
 		"url_hash": url_hash,
@@ -46,7 +47,6 @@ func (u *urlHandler) CreateUrl(ctx *gin.Context) {
 }
 func (u *urlHandler) GetAll(ctx *gin.Context) {
 	urlService := services.NewUrlService()
-	queueService := services.NewRabbitMQService()
 
 	urls, err := urlService.GetAll()
 	if err != nil {
@@ -54,23 +54,19 @@ func (u *urlHandler) GetAll(ctx *gin.Context) {
 		return
 	}
 	//success
-	queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
-	defer queueService.Conn.Close()
+	u.H_queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
 	ctx.JSON(http.StatusOK, urls)
 }
 
 func (u *urlHandler) GetUrlByHash(ctx *gin.Context) {
 	url_hash := ctx.Param("url_hash")
-	redisService := services.NewRedisService()
 	urlService := services.NewUrlService()
-	queueService := services.NewRabbitMQService()
 
 	//cache
-	cache_val, err := redisService.Get(url_hash) // GET URL FROM CACHE
+	cache_val, err := u.H_cacheService.Get(url_hash) // GET URL FROM CACHE
 	if err == nil {
 		//success cache
-		queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
-		defer queueService.Conn.Close()
+		u.H_queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
 		ctx.JSON(http.StatusOK, gin.H{
 			"cache": true,
 			"url":   cache_val,
@@ -89,8 +85,7 @@ func (u *urlHandler) GetUrlByHash(ctx *gin.Context) {
 		return
 	}
 	//success
-	queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
-	defer queueService.Conn.Close()
+	u.H_queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
 	ctx.JSON(http.StatusOK, gin.H{
 		"db":  true,
 		"url": url,
@@ -98,16 +93,13 @@ func (u *urlHandler) GetUrlByHash(ctx *gin.Context) {
 }
 func (u *urlHandler) RedirectToUrl(ctx *gin.Context) {
 	url_hash := ctx.Param("url_hash")
-	redisService := services.NewRedisService()
 	urlService := services.NewUrlService()
-	queueService := services.NewRabbitMQService()
 
 	//cache
-	cache_val, err := redisService.Get(url_hash)
+	cache_val, err := u.H_cacheService.Get(url_hash)
 	if err == nil {
 		//success
-		queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
-		defer queueService.Conn.Close()
+		u.H_queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
 		ctx.Redirect(http.StatusMovedPermanently, cache_val)
 		return
 	}
@@ -123,16 +115,13 @@ func (u *urlHandler) RedirectToUrl(ctx *gin.Context) {
 		return
 	}
 	//sucess
-	queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
-	defer queueService.Conn.Close()
+	u.H_queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
 	ctx.Redirect(http.StatusMovedPermanently, url)
 }
 
 func (u *urlHandler) DeleteUrl(ctx *gin.Context) {
 	url_hash := ctx.Param("url_hash")
-	redisService := services.NewRedisService()
 	urlService := services.NewUrlService()
-	queueService := services.NewRabbitMQService()
 
 	response, err := urlService.Delete(url_hash)
 	if err != nil {
@@ -144,9 +133,8 @@ func (u *urlHandler) DeleteUrl(ctx *gin.Context) {
 		return
 	}
 	//success
-	queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
-	defer queueService.Conn.Close()
-	redisService.Del(url_hash) // DELETE URL FROM CACHE
+	u.H_queueService.Publish(ctx.FullPath() + ";" + ctx.Request.Method)
+	u.H_cacheService.Del(url_hash) // DELETE URL FROM CACHE
 	ctx.JSON(http.StatusNoContent, gin.H{
 		"Message": "URL deletada com sucesso!",
 	})

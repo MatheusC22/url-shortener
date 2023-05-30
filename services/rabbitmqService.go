@@ -7,16 +7,16 @@ import (
 	_ "github.com/streadway/amqp"
 )
 
-type rabbitmqService struct {
+type RabbitmqService struct {
 	Conn *amqp.Connection
-	ch   *amqp.Channel
+	Ch   *amqp.Channel
 }
 
-func NewRabbitMQService() *rabbitmqService {
+func NewRabbitMQService() *RabbitmqService {
 	new_conn := CreateConn()
 	new_ch := CreateChannel(*new_conn)
 	CreateQueue(*new_ch)
-	return &rabbitmqService{Conn: new_conn, ch: new_ch}
+	return &RabbitmqService{Conn: new_conn, Ch: new_ch}
 }
 
 func CreateConn() *amqp.Connection {
@@ -53,8 +53,8 @@ func CreateQueue(ch amqp.Channel) *amqp.Queue {
 	return &q
 }
 
-func (q *rabbitmqService) Publish(message string) {
-	err := q.ch.Publish(
+func (q *RabbitmqService) Publish(message string) {
+	err := q.Ch.Publish(
 		"",
 		"MainQueue",
 		false,
